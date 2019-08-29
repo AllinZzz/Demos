@@ -2,14 +2,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.demos">
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DragLayout.DragActivity"></activity>
+        <activity android:name=".wifi.WiFiActivity"></activity>
+        <activity android:name=".testScale.ScaleActivity" />
+        <activity android:name=".forbidden.ForbiddenActivity" />
+        <activity android:name=".ViewStub.ViewStubActivity" />
+        <activity android:name=".visible.VisibleActivity" />
+        <activity android:name=".drag.DragLayout.DragActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,6 +30,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".restriction.RestrictionActivity" />
+        <activity android:name=".addview.AddViewActivity" />
+        <activity android:name=".view_drag.DragActivity" />
+        <activity android:name=".auto_text_view.AutoTextViewActivity" />
+        <activity android:name=".card_view.CardViewActivity" />
     </application>
 
 </manifest>

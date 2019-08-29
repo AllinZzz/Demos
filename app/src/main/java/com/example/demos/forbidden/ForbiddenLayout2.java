@@ -1,4 +1,4 @@
-package com.example.demos.DragLayout;
+package com.example.demos.forbidden;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -6,14 +6,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
-import android.support.annotation.NonNull;
-import android.support.v4.widget.ViewDragHelper;
+import android.text.method.Touch;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -21,15 +18,20 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.example.demos.R;
+import com.example.demos.drag.DragLayout.DragImageView;
+import com.example.demos.restriction.funny.addworddemo.util.LogUtils;
 
-import java.util.Iterator;
+import java.util.List;
 
-public class DragLayout extends ViewGroup {
+public class ForbiddenLayout2 extends FrameLayout implements IForbiddenLayout{
 
-    private static final String TAG = "DragLayout";
-    private ViewDragHelper mViewDragHelper;
+    private static final String TAG = "ForbiddenLayout2";
+
+    private static final int LONG_PRESS_TIME = 800;
+
     private Paint paint;
     /**
      * 用来存放矩阵的9个值
@@ -61,24 +63,26 @@ public class DragLayout extends ViewGroup {
     private float mLastY;
     private int mHorizontalPadding;
     private int mVerticalPadding;
-    private int mTouchSlop;
+    private int mTouchSlop = 5;
     private boolean isWorking;
+    private int width;
+    private int height;
+    private boolean childTouch = false;
 
 
-    public DragLayout(Context context) {
+    public ForbiddenLayout2(Context context) {
         this(context, null);
     }
 
-    public DragLayout(Context context, AttributeSet attrs) {
+    public ForbiddenLayout2(Context context, AttributeSet attrs) {
         super(context, attrs);
         setWillNotDraw(false);
-        mViewDragHelper = ViewDragHelper.create(this, 1.0f, mCallback);
         initTypeArray(context, attrs);
         mGestureDetector = new GestureDetector(context, onDoubleTapListener);
         //初始化ScaleGestureDetector
         mScaleGestureDetector = new ScaleGestureDetector(context, onScaleGestureListener);
-    }
 
+    }
 
     private ScaleGestureDetector.OnScaleGestureListener onScaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
 
@@ -108,6 +112,7 @@ public class DragLayout extends ViewGroup {
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
+            childTouch = false;
             return true;
         }
 
@@ -119,6 +124,7 @@ public class DragLayout extends ViewGroup {
     private GestureDetector.SimpleOnGestureListener onDoubleTapListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
+            childTouch = false;
             Log.d(TAG, "onDoubleTap");
             if (isAutoScale) {
                 return true;
@@ -127,11 +133,11 @@ public class DragLayout extends ViewGroup {
             float y = e.getY();
             if (getScale() < MIN_SCALE) {
                 //如果当前的Scale值小于最小的Scale,那么双击的时候, 就扩大到最小的Scale
-                DragLayout.this.postDelayed(new AutoScaleRunnable(MIN_SCALE, x, y), 1);
+                ForbiddenLayout2.this.postDelayed(new AutoScaleRunnable(MIN_SCALE, x, y), 1);
                 isAutoScale = true;
             } else {
                 //否则,就要缩小到初始化的scale值
-                DragLayout.this.postDelayed(new AutoScaleRunnable(initScale, x, y), 1);
+                ForbiddenLayout2.this.postDelayed(new AutoScaleRunnable(initScale, x, y), 1);
                 isAutoScale = true;
             }
             return true;
@@ -148,42 +154,6 @@ public class DragLayout extends ViewGroup {
         }
     };
 
-//    private void calculateXYBelongsToRoom(float x, float y) {
-//        for (int roomIndex = 0; roomIndex < roomPoints.size(); roomIndex++) {
-//            //遍历每个room
-//            for (PointF point : roomPoints.get(roomIndex)) {
-//                int xx = (int) (point.x * getScale() + getTranslateX());
-//                int yy = (int) (point.y * getScale() + getTranslateY());
-//                if (Math.abs(xx - x) <= scaleRatio * getScale() && Math.abs(yy - y) <= scaleRatio * getScale()) {
-//                    Log.d(TAG, "selectedRoom 当前选中的点在 : " + roomIndex + " 房间号");
-//                    //说明传入的x,y属于当前这个房间里的点,取出房间号,根据房间号判断是否已经选择
-//                    if (selectedRoomNumber.contains(roomIndex)) {
-//                        LogUtil.d(TAG, "selectedRoom 房间号为 : " + roomIndex + " 的房间,当前已在列表中,这次点击后,将从列表中移除");
-//                        selectedRoomNumber.remove(selectedRoomNumber.indexOf(roomIndex));
-//                        Iterator<Integer> iterator = lastSelectedRooms.iterator();
-//                        while (iterator.hasNext()) {
-//                            Integer next = iterator.next();
-//                            if (next == roomIndex) {
-//                                iterator.remove();
-//                            }
-//                        }
-//                    } else {
-//                        LogUtil.d(TAG, "selectedRoom 房间号为 : " + roomIndex + " 的房间,当前不在列表中,这次点击后,将添加到列表中");
-//                        selectedRoomNumber.add(roomIndex);
-//                        if (isMopMode) {
-//                            lastSelectedRooms.add(roomIndex);
-//                            lastSelectedRooms.add(roomIndex);
-//                        } else {
-//                            lastSelectedRooms.add(roomIndex);
-//                        }
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-//        setSelectedRoom(lastSelectedRooms);
-//        listener.onRoomSelected(selectedRoomNumber);
-//    }
 
     private class AutoScaleRunnable implements Runnable {
 
@@ -230,7 +200,7 @@ public class DragLayout extends ViewGroup {
             //如果当前缩放值在合法范围,继续缩放
             if (tempScale > 1f && currentScale < mTargetScale
                     || tempScale < 1f && currentScale > mTargetScale) {
-                DragLayout.this.postDelayed(this, 1);
+                ForbiddenLayout2.this.postDelayed(this, 1);
             } else {
                 //否则,不在合法范围 , 那么就直接设置成目标缩放比率
                 float deltaScale = mTargetScale / currentScale;  //根据当前的scale值,计算距离目标scale值的差值,只需要缩放该差值就够了
@@ -242,6 +212,7 @@ public class DragLayout extends ViewGroup {
         }
     }
 
+
     private void initTypeArray(Context context, AttributeSet attrs) {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.DragLayout);
         if (typedArray != null) {
@@ -251,27 +222,40 @@ public class DragLayout extends ViewGroup {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        Log.d(TAG, "onSizeChanged");
+        super.onSizeChanged(w, h, oldw, oldh);
+        width = w;
+        height = h;
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         measureChildren(widthMeasureSpec, heightMeasureSpec);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+/*
+
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return mViewDragHelper.shouldInterceptTouchEvent(ev);
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        Log.d(TAG, "dispatchTouchEvent");
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (mGestureDetector.onTouchEvent(event)) {
-            return true;
-        }
-        mViewDragHelper.processTouchEvent(event);
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        Log.d(TAG, "onInterceptTouchEvent");
+        return super.onInterceptTouchEvent(ev);
+    }
+*/
 
-        mScaleGestureDetector.onTouchEvent(event);
-        float x = 0, y = 0;
+    @Override
+    public boolean onTouchEvent(final MotionEvent event) {
+        childTouch = false;
         //拿到触摸点的个数
         int pointerCount = event.getPointerCount();
+        float x = 0, y = 0;
         //计算多个触摸点的x和y的均值
         for (int i = 0; i < pointerCount; i++) {
             x += event.getX(i);
@@ -288,8 +272,23 @@ public class DragLayout extends ViewGroup {
             mLastY = y;
         }
         mLastPointCount = pointerCount;
+        if (pointerCount > 1) {
+            mScaleGestureDetector.onTouchEvent(event);
+            Log.d(TAG, "onTouchEvent mScaleGestureDetector");
+            return true;
+        }
+
+        if (mGestureDetector.onTouchEvent(event)) {
+            Log.d(TAG, "onTouchEvent mGestureDetector");
+            return true;
+        }
+
+
         switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                break;
             case MotionEvent.ACTION_MOVE:
+                Log.d(TAG, "ACTION_MOVE");
                 float dx = x - mLastX;
                 float dy = y - mLastY;
                 if (!isCanDrag) {
@@ -314,9 +313,11 @@ public class DragLayout extends ViewGroup {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                Log.d(TAG, "ACTION_UP");
                 mLastPointCount = 0;
                 break;
         }
+
         return true;
     }
 
@@ -326,11 +327,16 @@ public class DragLayout extends ViewGroup {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         canvas.save();
         canvas.concat(mScaleMatrix);
-
         drawBackground(canvas);
-
         canvas.restore();
     }
+
+//    @Override
+//    protected void dispatchDraw(Canvas canvas) {
+//        Log.d(TAG, "dispatchDraw");
+//        super.dispatchDraw(canvas);
+//    }
+
 
     private void drawBackground(Canvas canvas) {
         Log.d(TAG, "drawBackground ==============");
@@ -359,97 +365,61 @@ public class DragLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        Log.d(TAG, "onLayout " + changed + " " + l + " " + t + " " + r + " " + b);
+        super.onLayout(changed, l, t, r, b);
+        Log.d(TAG,
+                "onLayout " + changed + " " + l + " " + t + " " + r + " " + b + " , childTouch : " + childTouch);
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            int childWidth = child.getWidth();
-            int childHeight = child.getHeight();
-            Log.d(TAG, "Child : " + childWidth + "  " + childHeight);
-            child.layout((r - l - childWidth) / 2, (b - t - childHeight) / 2,
-                    (r - l - childWidth) / 2 + childWidth, (b - t - childHeight) / 2 + childHeight);
+            if (child instanceof ForbiddenView) {
+                LogUtils.d(TAG,
+                        "onLayout child : l : " + child.getLeft() + " , t : " + child.getTop() +
+                                " , r : " + child.getRight() + " , b : " + child.getBottom() + " " +
+                                ", measureWidth : " + child.getMeasuredWidth());
+                int left;
+                int top;
+                int right;
+                int bottom;
+//                if (!childTouch) {
+//                    left = Math.round(child.getLeft() * getScale() + getTranslateX());
+//                    top = Math.round(child.getTop() * getScale() + getTranslateY());
+//                    right = Math.round(child.getRight() * getScale() + getTranslateX());
+//                    bottom = Math.round(child.getBottom() * getScale() + getTranslateY());
+//                } else {
+//                    left = Math.round(child.getLeft());
+//                    top = Math.round(child.getTop());
+//                    right = Math.round(child.getRight());
+//                    bottom = Math.round(child.getBottom());
+//                }
+                left = Math.round(child.getLeft() * getScale() + getTranslateX());
+                top = Math.round(child.getTop() * getScale() + getTranslateY());
+                right = Math.round(child.getRight() * getScale() + getTranslateX());
+                bottom = Math.round(child.getBottom() * getScale() + getTranslateY());
+                child.layout(left, top, right, bottom);
+
+            }
+
         }
     }
 
-    private ViewDragHelper.Callback mCallback = new ViewDragHelper.Callback() {
-        @Override
-        public boolean tryCaptureView(@NonNull View view, int i) {
-            Log.d(TAG, "tryCaptureView");
-            return false;
-        }
+    public void addRooms(List<Integer> rooms) {
+        Log.d(TAG, "addRooms");
+        removeAllViews();
+        for (int i = 0; i < rooms.size(); i++) {
+            Integer room = rooms.get(i);
+            DragImageView dragImageView = new DragImageView(getContext());
+            dragImageView.setPosition(new PointF((float) width / 2f + i * 100,
+                    (float) height / 2f + i * 100));
+            dragImageView.setRoomNum(room);
+            addView(dragImageView);
 
-        @Override
-        public void onViewDragStateChanged(int state) {
-            super.onViewDragStateChanged(state);
-            Log.d(TAG, "onViewDragStateChanged");
         }
+    }
 
-        @Override
-        public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx, int dy) {
-            super.onViewPositionChanged(changedView, left, top, dx, dy);
-            Log.d(TAG, "onViewPositionChanged");
-        }
-
-        @Override
-        public void onViewCaptured(@NonNull View capturedChild, int activePointerId) {
-            super.onViewCaptured(capturedChild, activePointerId);
-            Log.d(TAG, "onViewCaptured");
-        }
-
-        @Override
-        public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {
-            super.onViewReleased(releasedChild, xvel, yvel);
-            Log.d(TAG, "onViewReleased");
-        }
-
-        @Override
-        public void onEdgeTouched(int edgeFlags, int pointerId) {
-            super.onEdgeTouched(edgeFlags, pointerId);
-            Log.d(TAG, "onEdgeTouched");
-        }
-
-        @Override
-        public boolean onEdgeLock(int edgeFlags) {
-            Log.d(TAG, "onEdgeLock");
-            return super.onEdgeLock(edgeFlags);
-        }
-
-        @Override
-        public void onEdgeDragStarted(int edgeFlags, int pointerId) {
-            super.onEdgeDragStarted(edgeFlags, pointerId);
-            Log.d(TAG, "onEdgeDragStarted");
-        }
-
-        @Override
-        public int getOrderedChildIndex(int index) {
-            Log.d(TAG, "getOrderedChildIndex");
-            return super.getOrderedChildIndex(index);
-        }
-
-        @Override
-        public int getViewHorizontalDragRange(@NonNull View child) {
-            Log.d(TAG, "getViewHorizontalDragRange");
-            return super.getViewHorizontalDragRange(child);
-        }
-
-        @Override
-        public int getViewVerticalDragRange(@NonNull View child) {
-            Log.d(TAG, "getViewVerticalDragRange");
-            return super.getViewVerticalDragRange(child);
-        }
-
-        @Override
-        public int clampViewPositionHorizontal(@NonNull View child, int left, int dx) {
-            Log.d(TAG, "clampViewPositionHorizontal");
-            return super.clampViewPositionHorizontal(child, left, dx);
-        }
-
-        @Override
-        public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
-            Log.d(TAG, "clampViewPositionVertical");
-            return super.clampViewPositionVertical(child, top, dy);
-        }
-    };
+    public void setChildTouch(boolean childTouch) {
+        LogUtils.d(TAG, "setChildTouch : " + childTouch);
+        this.childTouch = childTouch;
+    }
 
 
     /**
@@ -520,6 +490,10 @@ public class DragLayout extends ViewGroup {
             }
         }
         mScaleMatrix.postTranslate(deltaX, deltaY);
+        View childAt = getChildAt(0);
+        if (childAt != null) {
+            childAt.requestLayout();
+        }
     }
 
     /**

@@ -1,9 +1,6 @@
 package com.example.demos;
 
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.nfc.Tag;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,8 +8,16 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import com.example.demos.DragLayout.DragActivity;
+import com.example.demos.ViewStub.ViewStubActivity;
+import com.example.demos.addview.AddViewActivity;
+import com.example.demos.auto_text_view.AutoTextViewActivity;
+import com.example.demos.card_view.CardViewActivity;
+import com.example.demos.drag.DragLayout.DragActivity;
 import com.example.demos.adapter.DemoAdapter;
+import com.example.demos.forbidden.ForbiddenActivity;
+import com.example.demos.restriction.RestrictionActivity;
+import com.example.demos.visible.VisibleActivity;
+import com.example.demos.wifi.WiFiActivity;
 
 import java.util.Arrays;
 
@@ -43,6 +48,32 @@ public class MainActivity extends AppCompatActivity {
                     case 0:
                         startActivity(new Intent(MainActivity.this, DragActivity.class));
                         break;
+                    case 1:
+                        startActivity(new Intent(MainActivity.this, VisibleActivity.class));
+                    case 2:
+                        startActivity(new Intent(MainActivity.this, ViewStubActivity.class));
+                        break;
+                    case 3:
+                        startActivity(new Intent(MainActivity.this, RestrictionActivity.class));
+                        break;
+                    case 4:
+                        startActivity(new Intent(MainActivity.this, AddViewActivity.class));
+                    case 5:
+                        startActivity(new Intent(MainActivity.this,
+                                com.example.demos.view_drag.DragActivity.class));
+                        break;
+                    case 6:
+                        startActivity(new Intent(MainActivity.this, AutoTextViewActivity.class));
+                        break;
+                    case 7:
+                        startActivity(new Intent(MainActivity.this, CardViewActivity.class));
+                        break;
+                    case 8:
+                        startActivity(new Intent(MainActivity.this, ForbiddenActivity.class));
+                        break;
+                    case 9:
+                        startActivity(new Intent(MainActivity.this, WiFiActivity.class));
+                        break;
                     default:
                         break;
                 }
@@ -60,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void setData() {
         String[] titles = new String[]{
-                "DragLayout", "More"
+                "DragLayout", "visible", "ViewStub", "禁区", "Add View", "Drag", "AutoTextView",
+                "card View", "Forbidden", "WiFi", "More"
         };
         demoAdapter.setData(Arrays.asList(titles));
     }
