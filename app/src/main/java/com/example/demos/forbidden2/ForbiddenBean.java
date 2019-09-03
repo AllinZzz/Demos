@@ -234,12 +234,12 @@ public class ForbiddenBean {
                 float moveY = event.getY();
                 if (forbiddenAction == FORBIDDEN_ACTION_MOVE) {
                     //移动forbidden,改变forbidden的centerX,centerY,然后刷新
-                    float distanceX = (moveX - downX);
-                    float distanceY = (moveY - downY);
+                    float distanceX = (moveX - downX) / parent.getScale();
+                    float distanceY = (moveY - downY) / parent.getScale();
                     centerX += distanceX;
                     centerY += distanceY;
                     LogUtils.d(TAG, "ForbiddenBean onTouch : distanceX : " + distanceX + " , distanceY " +
-                            ": " + distanceY);
+                            ": " + distanceY + " , centerX : " + centerX + " , centerY : " + centerY);
                     setData(width, height, centerX, centerY);
                 } else {
                     //缩放forbidden,保留左上角坐标不变,进行缩放
