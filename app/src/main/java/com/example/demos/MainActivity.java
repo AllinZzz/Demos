@@ -15,6 +15,8 @@ import com.example.demos.card_view.CardViewActivity;
 import com.example.demos.drag.DragLayout.DragActivity;
 import com.example.demos.adapter.DemoAdapter;
 import com.example.demos.forbidden.ForbiddenActivity;
+import com.example.demos.forbidden2.ForbiddenActivity2;
+import com.example.demos.forbidden3.ForbiddenLayout;
 import com.example.demos.restriction.RestrictionActivity;
 import com.example.demos.visible.VisibleActivity;
 import com.example.demos.wifi.WiFiActivity;
@@ -69,9 +71,16 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(MainActivity.this, CardViewActivity.class));
                         break;
                     case 8:
-                        startActivity(new Intent(MainActivity.this, ForbiddenActivity.class));
+                        startActivity(new Intent(MainActivity.this,
+                                ForbiddenActivity.class));
                         break;
                     case 9:
+                        startActivity(new Intent(MainActivity.this, ForbiddenActivity2.class));
+                        break;
+                    case 10:
+                        startActivity(new Intent(MainActivity.this, com.example.demos.forbidden3.ForbiddenActivity.class));
+                        break;
+                    case 11:
                         startActivity(new Intent(MainActivity.this, WiFiActivity.class));
                         break;
                     default:
@@ -92,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     private void setData() {
         String[] titles = new String[]{
                 "DragLayout", "visible", "ViewStub", "禁区", "Add View", "Drag", "AutoTextView",
-                "card View", "Forbidden", "WiFi", "More"
+                "card View", "Forbidden", "Forbidden2", "Forbidden3", "WiFi", "More"
         };
         demoAdapter.setData(Arrays.asList(titles));
     }

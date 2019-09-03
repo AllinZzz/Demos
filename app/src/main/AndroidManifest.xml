@@ -2,13 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.demos">
 
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -17,7 +10,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".wifi.WiFiActivity"></activity>
+        <activity android:name=".forbidden3.ForbiddenActivity"></activity>
+        <activity android:name=".forbidden2.ForbiddenActivity2" />
+        <activity android:name=".wifi.WiFiActivity" />
         <activity android:name=".testScale.ScaleActivity" />
         <activity android:name=".forbidden.ForbiddenActivity" />
         <activity android:name=".ViewStub.ViewStubActivity" />
@@ -36,5 +31,12 @@
         <activity android:name=".auto_text_view.AutoTextViewActivity" />
         <activity android:name=".card_view.CardViewActivity" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.VIBRATE" />
 
 </manifest>

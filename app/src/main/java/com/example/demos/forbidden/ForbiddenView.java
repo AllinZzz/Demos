@@ -185,7 +185,7 @@ public class ForbiddenView extends View {
                 forbi_y = event.getY();
                 startPoint.set(forbi_x, forbi_y);
                 LogUtils.d(TAG,
-                        "move : drag" + downX);
+                        "move : drag put figure" + downX + " " + downY);
                 actionMode = DRAG;
                 sumDis = 0;
 
@@ -210,32 +210,31 @@ public class ForbiddenView extends View {
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (actionMode == DRAG) {
+                    float figure_x = event.getRawX();
+                    float figure_y = event.getRawY();
 
+                    final float xDistance = figure_x - downX;// - (view_x - forbi_x);
+                    final float yDistance = figure_y - downY;// - (view_y - forbi_y);
 
-                    float tmp_x = event.getRawX();
-                    float tmp_y = event.getRawY();
-                    final float xDistance = tmp_x - downX;
-                    final float yDistance = tmp_y - downY;
-
-
-                    if (Math.abs(xDistance) > 20 || Math.abs(yDistance) > 20) {
+                    LogUtils.d(TAG,
+                            "move : drag" + figure_x);
+                    LogUtils.d(TAG,
+                            "move : drag" + downX + " " + forbi_x + " " + (downX - forbi_x));
+                    LogUtils.d(TAG,
+                            "move : drag" + figure_y);
+                    LogUtils.d(TAG,
+                            "move : drag" + downY + " " + forbi_y + " " + (downY - forbi_y));
+                    LogUtils.d(TAG,
+                            "move : drag" + xDistance + " " + yDistance);
+                    if (Math.abs(figure_x - downX) > 5 || Math.abs(figure_y - downY) > 5)
+                    {
                         sumDis = sumDis + xDistance;
-                        float center_x =
-                                 ((getLeft() + getRight()) / 2f + xDistance / scale);
-                        float center_y =
-                                ((getTop() + getBottom()) / 2f + yDistance / scale);
-                        float rect_width =
-                                 Math.abs((getLeft() + getRight()) / 2f - getLeft());
-                        float rect_height =  Math.abs((getTop() + getBottom()) / 2f - getTop());
-                        int l = (int) (center_x - rect_width);
-                        int r = (int) (center_x + rect_width);
-                        int t = (int) (center_y - rect_height);
-                        int b = (int) (center_y + rect_height);
+                        int l = (int) (getLeft() + xDistance / scale);
+                        int r = (int) (getRight() - getLeft() + l);
+                        int t = (int) (getTop() + yDistance / scale);
+                        int b = (int) (getBottom() - getTop() + t);
                         LogUtils.d(TAG,
-                                "move : drag" + downX + " cur_x: " + event.getRawX() + " left:" + getLeft() + " right:" + getRight() + " sumX: " + sumDis + " disx: "+ xDistance + " scale: " + scale + " center_x: " + center_x + " center_y: " + center_y + " rect_width" + rect_width + " rect_height: " + rect_height);
-                        LogUtils.d(TAG,
-                                "move : drag" + " l: " + l + " r:" + r + " t:" + t + " b:" + b);
-
+                                "move : drag" + "res: " + l + " " + r + " " + t + " " + b);
 //                        if (l < 0) {
 //                            l = 0;
 //                            r = getWidth();
@@ -252,19 +251,22 @@ public class ForbiddenView extends View {
 //                            b = this.parent.getBottom();
 //                            t = b - getHeight();
 //                        }
-                        int ll = (int) (dx + (l + r) / 2f * scale - getWidth() / 2f);
-                        int tt = (int) (dy + (t + b) / 2f * scale - getHeight() / 2f);
-                        this.layout(ll, tt, ll+ 300, tt+300);
+                        //int ll = (int) (dx + (l + r) / 2f * scale - getWidth() / 2f);
+                        //int tt = (int) (dy + (t + b) / 2f * scale - getHeight() / 2f);
+                        float view_x = event.getX();
+                        float view_y = event.getY();
+                        this.layout(l, t, r, b);
 
                         FrameLayout.LayoutParams lp =
-                                    new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                         LogUtils.d(TAG, "move : drag" + getLeft() + " " + getRight());
-                        lp.leftMargin = l;
-                        lp.topMargin = r;
+                        lp.leftMargin = (int) (l - (view_x - forbi_x));
+                        lp.topMargin = (int) (t - (view_y - forbi_y));
                         setLayoutParams(lp);
-                        downX = tmp_x;
-                        downY = tmp_y;
-
+                        downX = figure_x;
+                        downY = figure_y;
+                        forbi_x = view_x;
+                        forbi_y = view_y;
                     }
                 } else if (actionMode == ZOOM) {
                     LogUtils.d(TAG, "move : zoom");
