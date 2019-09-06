@@ -271,8 +271,6 @@ public class ForbiddenView extends View {
                 } else if (actionMode == ZOOM) {
                     LogUtils.d(TAG, "move : zoom");
                     PointF movePoint = new PointF(event.getX(), event.getY());
-                    float moveLength = spacing(startPoint, movePoint);
-                    LogUtils.d(TAG, "move length : " + moveLength);
 
                     midPoint = midPoint(new PointF(0, 0), new PointF(getWidth(), getHeight()));
 //                        moveBitMapToMidPointLength = spacing(midPoint, new PointF(getWidth(), getHeight()));

@@ -20,6 +20,7 @@ import com.example.demos.restriction.funny.addworddemo.util.LogUtils;
 import com.example.demos.utils.DensityUtil;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ForbiddenLayout extends View {
@@ -184,48 +185,45 @@ public class ForbiddenLayout extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                float x = event.getX();
-                float y = event.getY();
-                //先判断当前点击的位置,是否落在某个forbidden的删除按钮上
-                pressedForbidden = getForbiddenDelete(x, y);
-                if (pressedForbidden != null) {
-                    if (pressedForbidden.isFocus()) {
-                        //如果当前forbidden已是选中状态,那么删除这个forbidden
-                        removeForbidden(pressedForbidden);
-                    } else {
-                        //如果当前forbidden非选中状态,那么把这个forbidden设置为选中
-                        setForbiddenFocus(pressedForbidden);
-                    }
-                    return true;
-                }
-
-                //再判断是否点击了某个forbidden的缩放按钮上
-                pressedForbidden = getForbiddenScale(x, y);
-                if (pressedForbidden != null) {
-                    if (pressedForbidden.isFocus()) {
-                        //如果当前forbidden处于选中状态,那么让forbidden自身进行缩放
-                        forbiddenAction = ForbiddenBean.FORBIDDEN_ACTION_SCALE;
-                    } else {
-                        //如果当前forbidden非选中状态,那么把这个forbidden设置为选中
-                        setForbiddenFocus(pressedForbidden);
-                    }
+        if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            float x = event.getX();
+            float y = event.getY();
+            //先判断当前点击的位置,是否落在某个forbidden的删除按钮上
+            pressedForbidden = getForbiddenDelete(x, y);
+            if (pressedForbidden != null) {
+                forbiddenAction = ForbiddenBean.FORBIDDEN_ACTION_DELETE;
+                if (pressedForbidden.isFocus()) {
+                    //如果当前forbidden已是选中状态,那么删除这个forbidden
+                    removeForbidden(pressedForbidden);
                 } else {
-                    //最后判断是否点击了某个forbidden上
-                    pressedForbidden = getForbidden(x, y);
-                    if (pressedForbidden != null) {
-                        forbiddenAction = ForbiddenBean.FORBIDDEN_ACTION_MOVE;
-                        setForbiddenFocus(pressedForbidden);
-                    }
+                    //如果当前forbidden非选中状态,那么把这个forbidden设置为选中
+                    setForbiddenFocus(pressedForbidden);
                 }
-                break;
-            default:
-                break;
+                return true;
+            }
+
+            //再判断是否点击了某个forbidden的缩放按钮上
+            pressedForbidden = getForbiddenScale(x, y);
+            if (pressedForbidden != null) {
+                if (pressedForbidden.isFocus()) {
+                    //如果当前forbidden处于选中状态,那么让forbidden自身进行缩放
+                    forbiddenAction = ForbiddenBean.FORBIDDEN_ACTION_SCALE;
+                } else {
+                    //如果当前forbidden非选中状态,那么把这个forbidden设置为选中
+                    setForbiddenFocus(pressedForbidden);
+                }
+            } else {
+                //最后判断是否点击了某个forbidden上
+                pressedForbidden = getForbidden(x, y);
+                if (pressedForbidden != null) {
+                    forbiddenAction = ForbiddenBean.FORBIDDEN_ACTION_MOVE;
+                    setForbiddenFocus(pressedForbidden);
+                }
+            }
         }
 
         if (pressedForbidden != null) {
-            pressedForbidden.onTouchEvent(event,forbiddenAction);
+            pressedForbidden.onTouchEvent(event, forbiddenAction);
             invalidate();
             return true;
         }
@@ -236,23 +234,6 @@ public class ForbiddenLayout extends View {
             result = mGestureDetector.onTouchEvent(event);
         }
         return result;
-    }
-
-    private void calculateXYBelongsToRoom(final float x, final float y) {
-        found:
-        for (int roomIndex = 0; roomIndex < roomPoints.size(); roomIndex++) {
-            //遍历每个room
-            for (PointF point : roomPoints.get(roomIndex)) {
-                int xx = (int) (point.x * getScale() + getTranslateX());
-                int yy = (int) (point.y * getScale() + getTranslateY());
-                if (Math.abs(xx - x) <= scaleRatio * getScale() && Math.abs(yy - y) <= scaleRatio * getScale()) {
-                    LogUtils.d(TAG, "selectedRoom 当前选中的点在 : " + roomIndex + " 房间号");
-                    //说明传入的x,y属于当前这个房间里的点,取出房间号,根据房间号判断是否已经选择
-//
-                    break found;
-                }
-            }
-        }
     }
 
     @Override
@@ -490,7 +471,8 @@ public class ForbiddenLayout extends View {
         for (ForbiddenBean bean : forbiddenList) {
             bean.setFocus(false);
         }
-        forbiddenBean.setData(width, height, getWidth() / 2f, getHeight() / 2f);
+        forbiddenBean.setData(getWidth() / 2f - width / 2f, getHeight() / 2f - height / 2f,
+                getWidth() / 2f + width / 2f, getHeight() / 2f + height / 2f);
         forbiddenList.add(forbiddenBean);
         invalidate();
     }
@@ -590,16 +572,19 @@ public class ForbiddenLayout extends View {
     /**
      * 把指定的forbidden设置为focus
      *
-     * @param forbiddenDelete
+     * @param forbiddenFocus
      */
-    private void setForbiddenFocus(ForbiddenBean forbiddenDelete) {
-        for (ForbiddenBean bean : forbiddenList) {
-            if (bean == forbiddenDelete) {
-                bean.setFocus(true);
-            } else {
-                bean.setFocus(false);
+    private void setForbiddenFocus(ForbiddenBean forbiddenFocus) {
+        Iterator<ForbiddenBean> iterator = forbiddenList.iterator();
+        while (iterator.hasNext()) {
+            ForbiddenBean bean = iterator.next();
+            bean.setFocus(false);
+            if (bean == forbiddenFocus) {
+                iterator.remove();
             }
         }
+        forbiddenFocus.setFocus(true);
+        forbiddenList.add(forbiddenFocus);
         invalidate();
 
     }

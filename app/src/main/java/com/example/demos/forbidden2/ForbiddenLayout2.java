@@ -327,8 +327,8 @@ public class ForbiddenLayout2 extends FrameLayout {
         for (ForbiddenBean bean : forbiddenList) {
             bean.setFocus(false);
         }
-        forbiddenBean.setData(width, height, getWidth() / 2f, getHeight() / 2f);
-        forbiddenList.add(forbiddenBean);
+//        forbiddenBean.setData(width, height, getWidth() / 2f, getHeight() / 2f);
+//        forbiddenList.add(forbiddenBean);
         invalidate();
     }
 

@@ -21,7 +21,7 @@ public class ForbiddenActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ForbiddenBean forbiddenBean = new ForbiddenBean(forbiddenLayout);
-                forbiddenLayout.addForbidden(forbiddenBean, 100, 100);
+                forbiddenLayout.addForbidden(forbiddenBean, 300, 300);
             }
         });
     }

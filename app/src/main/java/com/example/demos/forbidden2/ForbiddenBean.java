@@ -23,10 +23,14 @@ public class ForbiddenBean {
     private static final int DEL_SCALE_PADDING = 10;
     public static final int FORBIDDEN_ACTION_SCALE = 0x001;
     public static final int FORBIDDEN_ACTION_MOVE = 0x002;
+    public static final int FORBIDDEN_ACTION_DELETE = 0X003;
     private final ForbiddenLayout parent;
 
-    private float width;  //禁区的宽
-    private float height;  //禁区的高
+    private float left;     //禁区的左上角距离底图的x方向的距离
+    private float top;      //禁区的左上角距离底图的y方向的距离
+    private float right;    //禁区的右上角距离底图的x方向的距离
+    private float bottom;   //禁区的右下角距离底图的y方向的距离
+
     private float centerX;  //禁区的中心点x值
     private float centerY;  //禁区的中心点y值
     private boolean focus;  //当前是否被选中
@@ -51,21 +55,6 @@ public class ForbiddenBean {
         focus = true;
     }
 
-    public float getWidth() {
-        return width;
-    }
-
-    public void setWidth(float width) {
-        this.width = width;
-    }
-
-    public float getHeight() {
-        return height;
-    }
-
-    public void setHeight(float height) {
-        this.height = height;
-    }
 
     public float getCenterX() {
         return centerX;
@@ -163,32 +152,38 @@ public class ForbiddenBean {
         this.scaleRectF = scaleRectF;
     }
 
-    public void setData(float width, float height, float centerX, float centerY) {
-        this.width = width;
-        this.height = height;
-        this.centerX = centerX;
-        this.centerY = centerY;
-        setRectF(width, height, centerX, centerY);
+    public void setData(float left, float top, float right, float bottom) {
+        LogUtils.d(TAG, "setData ");
+        this.left = left;
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+        this.centerX = (right - left) / 2f;
+        this.centerY = (bottom - top) / 2f;
+        setRectF(left, top, right, bottom);
     }
 
-    private void setRectF(float width, float height, float centerX, float centerY) {
-        forbiddenRectF.set(centerX - width / 2f, centerY - height / 2f, centerX + width / 2f,
-                centerY + height / 2f);
-        delRectF.set(centerX - width / 2f - bmpDelete.getWidth() / 2f - DEL_SCALE_PADDING,
-                centerY - height / 2f - bmpDelete.getHeight() / 2f - DEL_SCALE_PADDING,
-                centerX - width / 2f + bmpDelete.getWidth() / 2f + DEL_SCALE_PADDING,
-                centerY - height / 2f + bmpDelete.getHeight() / 2f + DEL_SCALE_PADDING);
-        scaleRectF.set(centerX + width / 2f - bmpScale.getWidth() / 2f - DEL_SCALE_PADDING,
-                centerY + height / 2f - bmpScale.getHeight() / 2f - DEL_SCALE_PADDING,
-                centerX + width / 2f + bmpScale.getWidth() / 2f + DEL_SCALE_PADDING,
-                centerY + height / 2f + bmpScale.getHeight() / 2f + DEL_SCALE_PADDING);
+    private void setRectF(float left, float top, float right, float bottom) {
+        forbiddenRectF.set(left, top, right, bottom);
+        delRectF.set(left - bmpDelete.getWidth() / 2f - DEL_SCALE_PADDING,
+                top - bmpDelete.getHeight() / 2f - DEL_SCALE_PADDING,
+                left + bmpDelete.getWidth() / 2f + DEL_SCALE_PADDING,
+                top + bmpDelete.getHeight() / 2f + DEL_SCALE_PADDING);
+        scaleRectF.set(right - bmpScale.getWidth() / 2f - DEL_SCALE_PADDING,
+                bottom - bmpScale.getHeight() / 2f - DEL_SCALE_PADDING,
+                right + bmpScale.getWidth() / 2f + DEL_SCALE_PADDING,
+                bottom + bmpScale.getHeight() / 2f + DEL_SCALE_PADDING);
         path.reset();
         path.addRect(forbiddenRectF, Path.Direction.CCW);
     }
 
     private void initBitmap(Context context) {
-        bmpDelete = getAvatar(context.getResources(), R.drawable.img_forbidden_del, 30);
-        bmpScale = getAvatar(context.getResources(), R.drawable.img_forbidden_scale, 30);
+//        bmpDelete = getAvatar(context.getResources(), R.drawable.img_forbidden_del, 30);
+//        bmpScale = getAvatar(context.getResources(), R.drawable.img_forbidden_scale, 30);
+        bmpDelete = BitmapFactory.decodeResource(context.getResources(),
+                R.drawable.img_forbidden_del);
+        bmpScale = BitmapFactory.decodeResource(context.getResources(),
+                R.drawable.img_forbidden_scale);
     }
 
     private void initPaint() {
@@ -215,15 +210,15 @@ public class ForbiddenBean {
         canvas.drawRect(forbiddenRectF, bgRectFPaint);
         canvas.drawPath(path, pathPaint);
         if (focus) {
-            canvas.drawBitmap(bmpDelete, centerX - width / 2f - bmpDelete.getWidth() / 2f,
-                    centerY - height / 2f - bmpDelete.getHeight() / 2f, mPatin);
-            canvas.drawBitmap(bmpScale, centerX + width / 2f - bmpScale.getWidth() / 2f,
-                    centerY + height / 2f - bmpScale.getHeight() / 2f, mPatin);
+            canvas.drawBitmap(bmpDelete, left - bmpDelete.getWidth() / 2f,
+                    top - bmpDelete.getHeight() / 2f, mPatin);
+            canvas.drawBitmap(bmpScale, right - bmpScale.getWidth() / 2f,
+                    bottom - bmpScale.getHeight() / 2f, mPatin);
         }
     }
 
-
     public void onTouchEvent(MotionEvent event, int forbiddenAction) {
+        LogUtils.d(TAG, "onTouchEvent : forbiddenAction : " + forbiddenAction);
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 downX = event.getX();
@@ -236,13 +231,30 @@ public class ForbiddenBean {
                     //移动forbidden,改变forbidden的centerX,centerY,然后刷新
                     float distanceX = (moveX - downX) / parent.getScale();
                     float distanceY = (moveY - downY) / parent.getScale();
-                    centerX += distanceX;
-                    centerY += distanceY;
+                    left += distanceX;
+                    top += distanceY;
+                    right += distanceX;
+                    bottom += distanceY;
                     LogUtils.d(TAG, "ForbiddenBean onTouch : distanceX : " + distanceX + " , distanceY " +
-                            ": " + distanceY + " , centerX : " + centerX + " , centerY : " + centerY);
-                    setData(width, height, centerX, centerY);
-                } else {
+                            ": " + distanceY + " , left : " + left + " , top : " + top + " , right : " + right + " , top : " + bottom);
+                    setData(left, top, right, bottom);
+                } else if (forbiddenAction == FORBIDDEN_ACTION_SCALE) {
                     //缩放forbidden,保留左上角坐标不变,进行缩放
+                    LogUtils.d(TAG, "move : zoom");
+                    float distanceX = (moveX - downX) / parent.getScale();
+                    float distanceY = (moveY - downY) / parent.getScale();
+                    right += distanceX;
+                    bottom += distanceY;
+                    if (right - left < 100) {
+                        right = left + 100;
+                    }
+                    if (bottom - top < 100) {
+                        bottom = top + 100;
+                    }
+
+                    setData(left, top, right, bottom);
+                } else {
+
                 }
                 downX = moveX;
                 downY = moveY;
@@ -252,32 +264,23 @@ public class ForbiddenBean {
             default:
                 break;
         }
-
     }
-
 
     @Override
     public String toString() {
         return "ForbiddenBean{" +
-                "width=" + width +
-                ", height=" + height +
-                ", centerX=" + centerX +
-                ", centerY=" + centerY +
-                ", focus=" + focus +
-                ", path=" + path +
+                "parent=" + parent +
+                ", left=" + left +
+                ", top=" + top +
+                ", right=" + right +
+                ", bottom=" + bottom +
                 ", forbiddenRectF=" + forbiddenRectF +
-                ", mPatin=" + mPatin +
-                ", pathPaint=" + pathPaint +
-                ", bgRectFPaint=" + bgRectFPaint +
-                ", bmpDelete=" + bmpDelete +
-                ", bmpScale=" + bmpScale +
                 ", delRectF=" + delRectF +
                 ", scaleRectF=" + scaleRectF +
-                ", canvas=" + canvas +
                 '}';
     }
 
-    public Bitmap getAvatar(Resources res, int drawableId, int width) {
+    private Bitmap getAvatar(Resources res, int drawableId, int width) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeResource(res, drawableId, options);
@@ -286,4 +289,5 @@ public class ForbiddenBean {
         options.inTargetDensity = width;
         return BitmapFactory.decodeResource(res, drawableId, options);
     }
+
 }
