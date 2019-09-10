@@ -40,11 +40,11 @@ public class ForbiddenLayout extends View {
     /**
      * 最大的缩放比率(相较于原始尺寸)
      */
-    public static float MAX_SCALE = 2.0f;
+    public static float MAX_SCALE = 5.0f;
     /**
      * 最小缩放比率(相较于原始尺寸)
      */
-    public static float MIN_SCALE = 2.0f;
+    public static float MIN_SCALE = 5.0f;
     /**
      * 初始化时的缩放比率
      */
@@ -186,6 +186,7 @@ public class ForbiddenLayout extends View {
     public boolean onTouchEvent(MotionEvent event) {
 
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+
             float x = event.getX();
             float y = event.getY();
             //先判断当前点击的位置,是否落在某个forbidden的删除按钮上
@@ -220,14 +221,22 @@ public class ForbiddenLayout extends View {
                     setForbiddenFocus(pressedForbidden);
                 }
             }
+        } else if (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+            LogUtils.d(TAG, "onTouchEvent Pointer Down : " + event.getPointerCount());
+            forbiddenAction = ForbiddenBean.FORBIDDEN_ACTION_GESTURE_SCALE;
+        } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+            forbiddenAction = ForbiddenBean.FORBIDDEN_ACTION_NONE;
         }
 
-        if (pressedForbidden != null) {
-            pressedForbidden.onTouchEvent(event, forbiddenAction);
-            invalidate();
-            return true;
+        if (forbiddenAction == ForbiddenBean.FORBIDDEN_ACTION_GESTURE_SCALE) {
+            return mScaleGestureDetector.onTouchEvent(event);
+        } else {
+            if (pressedForbidden != null) {
+                pressedForbidden.onTouchEvent(event, forbiddenAction);
+                invalidate();
+                return true;
+            }
         }
-
 
         boolean result = mScaleGestureDetector.onTouchEvent(event);
         if (!mScaleGestureDetector.isInProgress()) {

@@ -1,22 +1,21 @@
 package com.example.demos;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
 import com.example.demos.ViewStub.ViewStubActivity;
+import com.example.demos.adapter.DemoAdapter;
 import com.example.demos.addview.AddViewActivity;
 import com.example.demos.auto_text_view.AutoTextViewActivity;
 import com.example.demos.card_view.CardViewActivity;
 import com.example.demos.drag.DragLayout.DragActivity;
-import com.example.demos.adapter.DemoAdapter;
 import com.example.demos.forbidden.ForbiddenActivity;
 import com.example.demos.forbidden2.ForbiddenActivity2;
-import com.example.demos.forbidden3.ForbiddenLayout;
 import com.example.demos.restriction.RestrictionActivity;
 import com.example.demos.visible.VisibleActivity;
 import com.example.demos.wifi.WiFiActivity;
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     private void setData() {
         String[] titles = new String[]{
                 "DragLayout", "visible", "ViewStub", "禁区", "Add View", "Drag", "AutoTextView",
-                "card View", "Forbidden", "Forbidden2", "Forbidden3", "WiFi", "More"
+                "card View", "Forbidden", "Forbidden2", "Forbidden3", "WiFi", "", "More"
         };
         demoAdapter.setData(Arrays.asList(titles));
     }

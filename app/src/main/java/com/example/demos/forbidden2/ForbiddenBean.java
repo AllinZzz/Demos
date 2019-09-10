@@ -21,9 +21,11 @@ public class ForbiddenBean {
 
     private static final String TAG = "ForbiddenBean";
     private static final int DEL_SCALE_PADDING = 10;
+    public static final int FORBIDDEN_ACTION_NONE = 0x000;
     public static final int FORBIDDEN_ACTION_SCALE = 0x001;
     public static final int FORBIDDEN_ACTION_MOVE = 0x002;
     public static final int FORBIDDEN_ACTION_DELETE = 0X003;
+    public static final int FORBIDDEN_ACTION_GESTURE_SCALE = 0X004;
     private final ForbiddenLayout parent;
 
     private float left;     //禁区的左上角距离底图的x方向的距离
